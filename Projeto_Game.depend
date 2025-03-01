@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1740789054 source:c:\programacao\curso_c_udemy\projeto_game\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
