@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <windows.h>
 
 
 #define TAM 3
@@ -9,11 +10,11 @@
 
 
 void menu(char tabuleiro[TAM][TAM]);
-void exibe_tabuleiro(char tabuleiro[TAM][TAM]);
-bool executa_jogada(int pos[2], char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas);
-bool jogada_valida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogada);
-bool verifica_vitoria_jogador1(char tabuleiro[TAM][TAM], bool vencedor);
-bool verifica_vitoria_jogador2(char tabuleiro[TAM][TAM], bool vencedor);
+void exibeTabuleiro(char tabuleiro[TAM][TAM]);
+bool executaJogada(int pos[2], char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas);
+bool jogadaValida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogada);
+bool verificaVitoriaJogador1(char tabuleiro[TAM][TAM], bool vencedor);
+bool verificaVitoriaJogador2(char tabuleiro[TAM][TAM], bool vencedor);
 
 
 
@@ -39,18 +40,17 @@ void menu(char tabuleiro[TAM][TAM]){
     {
         bool jogada;
         // Limpa a tela antes de exibir o tabuleiro
-        exibe_tabuleiro(tabuleiro);
+        exibeTabuleiro(tabuleiro);
 
         if(cont_jogadas % 2 == 1){
             printf("\n Vez : Jogador 1");
-            jogada = jogada_valida(tabuleiro, JOGADOR1, &cont_jogadas);
-            vencedor = verifica_vitoria_jogador1(tabuleiro, vencedor);
-            printf("Vencedor : %d", vencedor);
+            jogada = jogadaValida(tabuleiro, JOGADOR1, &cont_jogadas);
+            vencedor = verificaVitoriaJogador1(tabuleiro, vencedor);
         }
         else{
             printf("\n Vez : Jogador2");
-            jogada = jogada_valida(tabuleiro, JOGADOR2, &cont_jogadas);
-            vencedor = verifica_vitoria_jogador2(tabuleiro, vencedor);
+            jogada = jogadaValida(tabuleiro, JOGADOR2, &cont_jogadas);
+            vencedor = verificaVitoriaJogador2(tabuleiro, vencedor);
         }
 
 
@@ -63,11 +63,14 @@ void menu(char tabuleiro[TAM][TAM]){
                     printf("Vitoria do Jogador2 !");
                 }
         }
+
+        Sleep(1000);
+        system("cls");
     }
 }
 
 // Define a função que verifica se há um vencedor
-bool verifica_vitoria_jogador1(char tabuleiro[TAM][TAM], bool vencedor){
+bool verificaVitoriaJogador1(char tabuleiro[TAM][TAM], bool vencedor){
     int cont_linha[] = {0, 0, 0};
     int cont_coluna[] = {0, 0, 0};
     int diagonal[] = {0, 0};
@@ -124,7 +127,7 @@ bool verifica_vitoria_jogador1(char tabuleiro[TAM][TAM], bool vencedor){
 }
 
 // Define a função que verifica se há um vencedor
-bool verifica_vitoria_jogador2(char tabuleiro[TAM][TAM], bool vencedor){
+bool verificaVitoriaJogador2(char tabuleiro[TAM][TAM], bool vencedor){
     int cont_linha[] = {0, 0, 0};
     int cont_coluna[] = {0, 0, 0};
     int diagonal[] = {0, 0};
@@ -184,15 +187,23 @@ bool verifica_vitoria_jogador2(char tabuleiro[TAM][TAM], bool vencedor){
 
 
 // Define a função responsável por imprimir o tabuleiro
-void exibe_tabuleiro(char pos[TAM][TAM]){
-    printf("\n %c | %c | %c ", pos[0][0], pos[0][1], pos[0][2]);
-    printf("\n %c | %c | %c ", pos[1][0], pos[1][1], pos[1][2]);
-    printf("\n %c | %c | %c ", pos[2][0], pos[2][1], pos[2][2]);
+void exibeTabuleiro(char pos[TAM][TAM]) {
+    printf("\n    1   2   3  "); // Índices de coluna
+    printf("\n  -------------");
+
+    for (int i = 0; i < TAM; i++) {
+        printf("\n%d |", i + 1); // Índices de linha
+        for (int j = 0; j < TAM; j++) {
+            printf(" %c |", pos[i][j]);
+        }
+        printf("\n  -------------");
+    }
+    printf("\n");
 }
 
 
 //Define a função que irá validar as jogadas
-bool jogada_valida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
+bool jogadaValida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
     int pos[2] = {};
     int valida_entrada;
     bool executa;
@@ -201,14 +212,11 @@ bool jogada_valida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
     valida_entrada = scanf("%d %d", &pos[0], &pos[1]);
 
     if (valida_entrada != 2){
-        printf("Entrada inválida! Por favor, Digite as posiçoes [X, Y] : \n");
+        printf("\nEntrada inválida! Por favor, Digite as posiçoes [X, Y] : \n");
         while(getchar() != '\n');
     }
-    else {
-        printf("Posição válida: [%d, %d]\n", pos[0], pos[1]);
-    }
 
-    executa = executa_jogada(pos, tabuleiro, jogador, cont_jogadas);
+    executa = executaJogada(pos, tabuleiro, jogador, cont_jogadas);
     if (executa == false){
         return false;
     }
@@ -216,23 +224,23 @@ bool jogada_valida(char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
     return true;
 }
 
-bool executa_jogada(int pos[2], char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
-    printf("\n Jogador : %d ", jogador);
-
-    if (tabuleiro[pos[0]][pos[1]] == ' '){
+bool executaJogada(int pos[2], char tabuleiro[TAM][TAM], int jogador, int* cont_jogadas){
+    if (tabuleiro[pos[0]-1][pos[1]-1] == ' '){
         if (jogador == 1){
-            tabuleiro[pos[0]][pos[1]] = 'X';
+            printf("\nPosicao valida: [%d, %d]. Alocando ao Tabuleiro...\n", pos[0], pos[1]);
+            tabuleiro[pos[0]-1][pos[1]-1] = 'X';
             (*cont_jogadas)++;
             return true;
         }
         else if (jogador == 2){
-            tabuleiro[pos[0]][pos[1]] = 'O';
+            printf("\nPosicao valida: [%d, %d]. Alocando ao Tabuleiro...\n", pos[0], pos[1]);
+            tabuleiro[pos[0]-1][pos[1]-1] = 'O';
             (*cont_jogadas)++;
             return true;
         }
-        else{
-            printf("Posição Inválida ! ");
-            return false;
-        }
     }
+    else{
+        printf("\nPosicao Invalida !");
+        return false;
+        }
 }
